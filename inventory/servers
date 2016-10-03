@@ -1,0 +1,2 @@
+[connect-server]
+globus-host 192.168.56.99 ansible_connection=ssh
