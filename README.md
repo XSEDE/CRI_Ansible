@@ -13,3 +13,7 @@ configuration. Suggestions on better defaults are quite welcome!
 
 This can be added to your current Ansible plays by adding the
 role-globus directory under "roles". 
+
+The task does not use the firewalld module, since it both requires
+the Python 2 bindings, and that the service exist in /etc/services, 
+which globus does not.
