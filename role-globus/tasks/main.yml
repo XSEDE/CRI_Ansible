@@ -22,7 +22,7 @@
    gather_facts: yes
    tasks:
 
-   - template: src=conf_files/globus-connect-server.conf dest=/etc/globus-connect-server.conf
+   - template: src=globus-connect-server.conf dest=/etc/globus-connect-server.conf
 
    - expect:
        command: globus-connect-server-setup
@@ -37,6 +37,14 @@
     - name: globus_passwd
       prompt: "Enter your Globus Online Password:"
       private: yes
+    - name: firewall_zone
+      prompt: "Enter the name of your firewall zone for the globus service [default \"default\"]:"
+      private: no
+      default: "default"
+    - name: auth_method
+      prompt: "Are you using MyProxy(1) OAuth (2) or CILogon (3)? Please enter only the corresponding integer [default 1]:"
+      private: no
+      default: "1"
 
    vars:
      globus_endpoint_name: "{{ globus_username }}#{{ ansible_hostname }}" 
