@@ -1,0 +1,73 @@
+---
+   
+   - name: get default zone
+     cmd: "firewall-cmd --get-default-zone"
+     register: firewall_zone
+     when: firewall_zone == "default"
+
+   - name: add firewall incoming whitelists for Globus services
+     cmd: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule {{ item }}"
+     with_items:
+      - 'source address="" port port= protocol="tcp" accept'
+      - 'source address=184.73.189.163 port port=2811 protocol="tcp" accept'
+      - 'source address=174.129.226.69 port port=2811 protocol="tcp" accept'
+      - 'destination address=184.73.255.160 port port=2223 protocol="tcp" accept'
+
+   - name: add firewall incoming whitelist for MyProxy
+     cmd: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule {{ item }}"
+     with_items:
+      - 'source address=174.129.226.69 port port=7512 protocol="tcp" accept'
+     when: globus_auth_method == 1
+
+   - name: open port 443 for OAuth
+     cmd: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-port=443"
+     when: globus_auth_method == 2
+
+   - name: add globus service to /etc/firewalld/services
+     copy: src=globus-service.xml dest=/etc/firewalld/services.xml
+
+   - name: get selinux status
+     cmd: "getenforce"
+     register: selinux_status
+
+   - name: fix selinux context on service file
+     cmd: "restorecon /etc/firewalld/services/"
+     when: selinux_status == "Enforcing"
+
+   - name: reload firewall
+     cmd: "firewall-cmd --reload"
+  
+   - name: add globus-service permanently
+     cmd: "firewall-cmd --permanent --add-service globus-service --zone={{ firewall_zone }}"
+
+   - name: reload firewall
+     cmd: "firewall-cmd --reload"
+  
+   - name: template globus-connect-server.conf
+   - template: src=globus-connect-server.conf dest=/etc/globus-connect-server.conf
+
+   - expect:
+       command: globus-connect-server-setup
+       responses:
+         (?i)Globus Username: "{{ globus_username }}"
+         (?i)Globus Password: "{{ globus_passwd }}"
+  
+   vars_prompt:
+    - name: globus_username
+      prompt: "Enter your Globus Organizational Username:"
+      private: no
+    - name: globus_passwd
+      prompt: "Enter your Globus Organizational Password:"
+      private: yes
+    - name: globus_endpoint_name
+      prompt: "Choose a short name for your endpoint [default: {{ globus_username }}#hostname]:"
+      private: no
+      default: "{{ globus_username }}#{{ ansible_hostname }}" 
+    - name: firewall_zone
+      prompt: "Enter the name of your firewall zone for the globus service [will default to the firewalld default]:"
+      private: no
+      default: "default"
+    - name: globus_auth_method
+      prompt: "Are you using MyProxy(1) OAuth (2) or CILogon (3)? Please enter only the corresponding integer [default 1]:"
+      private: no
+      default: "1"

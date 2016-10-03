@@ -1,0 +1,4 @@
+---
+ - hosts: connect_server
+   roles:
+    - globus-server
