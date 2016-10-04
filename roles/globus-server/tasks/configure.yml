@@ -12,9 +12,6 @@
 # this seems stupid... but if the user sets firewall_zone, then
 # I can't use firewall_zone.stdout in the rich rules! 
 
- - name: template firewall_zone
-   template: src=roles/globus-server/files/test.conf dest=/etc/test.conf
-
  - name: add firewall incoming whitelists for Globus services
    command: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule '{{ item }}'"
    with_items:
