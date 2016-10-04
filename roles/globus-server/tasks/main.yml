@@ -1,4 +1,8 @@
 ---
+ 
+ - name: test
+   command: "hostname"
 
-   - include: install.yml
-   - include: configure.yml
+ - include: install.yml
+ - include: configure.yml
+
