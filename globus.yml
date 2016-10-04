@@ -1,4 +1,26 @@
 ---
+
  - hosts: connect_server
+   gather_facts: yes
+
    roles:
-    - globus-server
+     - globus-server
+
+   vars_prompt:
+    - name: globus_username
+      prompt: "Enter your Globus Organizational Username:"
+      private: no
+    - name: globus_passwd
+      prompt: "Enter your Globus Organizational Password:"
+      private: yes
+    - name: globus_endpoint_short_name
+      prompt: "Choose a short name for your endpoint (this will be appended to 'globus_org_username#'):"
+      private: no
+    - name: firewall_zone
+      prompt: "Enter the name of your firewall zone for the globus service:"
+      private: no
+      default: "default"
+    - name: globus_auth_method
+      prompt: "Are you using MyProxy(1) OAuth (2) or CILogon (3)? Please enter only the corresponding integer:"
+      private: no
+      default: "1"
