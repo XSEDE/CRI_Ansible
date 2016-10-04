@@ -1,11 +1,11 @@
-#H XCRI Ansible Roles
+# XCRI Ansible Roles
 
 This contains various ansible roles for making administration
 of XSEDE-related software easier. Most of these will be tested on
 CentOS 6 and 7, depending on demand / contributions, we may support
 other operating systems as well.
 
-##H2 Ansible role for installing Globus Connect Server
+## Ansible role for installing Globus Connect Server
 
 This role automates the installation of Globus Connect Server (GCS). 
 Currently, this works for CentOS 7; updating 
