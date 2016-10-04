@@ -1,26 +1,3 @@
-##Port 2811 inbound from 184.73.189.163 and 174.129.226.69
-##Used for GridFTP control channel traffic.
-#
-##Ports 50000—51000 inbound and outbound to/from Any
-##Used for GridFTP data channel traffic.
-#
-##Port 2223 outbound to 184.73.255.160
-##Used to pull certificate information from the Globus service.
-#
-##!#Port 443 outbound to 174.129.226.69 and nexus.api.globusonline.org
-##!#Used to communicate with the Globus service via its REST API; nexus has a dynamic ip
-#
-##!#Port 80 outbound to 192.5.186.47
-##!#Used to pull Globus Connect Server install packages from the Globus repository.
-#
-##Port 7512 inbound from 174.129.226.69
-##Used for MyProxy traffic.
-##Needed if your server will run MyProxy service.
-##
-##Port 443 inbound from Any
-##Used for OAuth traffic.
-##Needed if your server will run OAuth service.
-
 <?xml version="1.0" encoding="utf-8"?>
 <service>
   <short>Globus Connect Server</short>
