@@ -1,0 +1,40 @@
+---
+   
+   - name: ensure easy_install is installed
+     apt: name=python-setuptools state=latest
+     become: true
+     become_user: root
+     become_method: sudo
+
+   - name: ensure pip is installed
+     easy_install: name=pip state=latest
+     become: true
+     become_user: root
+     become_method: sudo
+
+   - name: ensure pexpect is installed
+     pip: name=pexpect version=3.3
+     become: true
+     become_user: root
+     become_method: sudo
+
+#   - name: get globus gpg key
+#     apt_key: state=present url=http://toolkit.globus.org/ftppub/globus-connect-server/RPM-GPG-KEY-Globus
+#     become: true
+#     become_user: root
+#     become_method: sudo
+
+   - name: get globus repo deb
+     apt: deb=http://toolkit.globus.org/ftppub/globus-connect-server/globus-connect-server-repo_latest_all.deb state=present
+     become: true
+     become_user: root
+     become_method: sudo
+
+#   - name: install globus repo
+#     apt: name=/tmp/globus-repo.deb state=present
+
+   - name: install globus-connect-server
+     apt: name=globus-connect-server state=present update_cache=yes
+     become: true
+     become_user: root
+     become_method: sudo
