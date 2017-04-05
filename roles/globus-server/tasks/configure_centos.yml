@@ -4,50 +4,54 @@
    command: "firewall-cmd --get-default-zone"
    when: firewall_zone == "default"
    register: zone_result
+   ignore_errors: True
 
- - name: fix firewall_zone syntax
-   set_fact: firewall_zone={{ zone_result.stdout }}
-   when: firewall_zone == "default"
+ - block:   # when: zone_result.failed == false
 
-# this seems stupid... but if the user sets firewall_zone, then
-# I can't use firewall_zone.stdout in the rich rules! 
-
- - name: add firewall incoming whitelists for Globus services
-   command: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule '{{ item }}'"
-   with_items:
-     - 'rule family="ipv4" source address=184.73.189.163 port port="2811" protocol="tcp" accept'
-     - 'rule family="ipv4" source address=174.129.226.69 port port="2811" protocol="tcp" accept'
-     - 'rule family="ipv4" destination address=184.73.255.160 port port="2223" protocol="tcp" accept'
-
- - name: add firewall incoming whitelist for MyProxy
-   command: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule {{ item }}"
-   with_items:
-     - 'source address=174.129.226.69 port port="7512" protocol="tcp" accept'
-   when: globus_auth_method == "1"
-
- - name: open port 443 for OAuth
-   command: 'firewall-cmd --permanent --zone={{ firewall_zone }} --add-port=443/tcp'
-   when: globus_auth_method == "2"
-
- - name: add globus service to /etc/firewalld/services
-   copy: src=globus-service.xml dest=/etc/firewalld/services/globus-service.xml
-
- - name: get selinux status
-   command: "getenforce"
-   register: selinux_status
-
- - name: fix selinux context on service file
-   command: "restorecon /etc/firewalld/services/"
-   when: selinux_status.stdout == "Enforcing"
-
- - name: reload firewall
-   command: "firewall-cmd --reload"
-
- - name: add globus-service permanently
-   command: "firewall-cmd --permanent --add-service globus-service --zone={{ firewall_zone }}"
-
- - name: reload firewall
-   command: "firewall-cmd --reload"
+   - name: fix firewall_zone syntax
+     set_fact: firewall_zone={{ zone_result.stdout }}
+     when: firewall_zone == "default"
+  
+  # this seems stupid... but if the user sets firewall_zone, then
+  # I can't use firewall_zone.stdout in the rich rules! 
+  
+   - name: add firewall incoming whitelists for Globus services
+     command: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule '{{ item }}'"
+     with_items:
+       - 'rule family="ipv4" source address=184.73.189.163 port port="2811" protocol="tcp" accept'
+       - 'rule family="ipv4" source address=174.129.226.69 port port="2811" protocol="tcp" accept'
+       - 'rule family="ipv4" destination address=184.73.255.160 port port="2223" protocol="tcp" accept'
+  
+   - name: add firewall incoming whitelist for MyProxy
+     command: "firewall-cmd --permanent --zone={{ firewall_zone }} --add-rich-rule {{ item }}"
+     with_items:
+       - 'source address=174.129.226.69 port port="7512" protocol="tcp" accept'
+     when: globus_auth_method == "1"
+  
+   - name: open port 443 for OAuth
+     command: 'firewall-cmd --permanent --zone={{ firewall_zone }} --add-port=443/tcp'
+     when: globus_auth_method == "2"
+  
+   - name: add globus service to /etc/firewalld/services
+     copy: src=globus-service.xml dest=/etc/firewalld/services/globus-service.xml
+  
+   - name: get selinux status
+     command: "getenforce"
+     register: selinux_status
+  
+   - name: fix selinux context on service file
+     command: "restorecon /etc/firewalld/services/"
+     when: selinux_status.stdout == "Enforcing"
+  
+   - name: reload firewall
+     command: "firewall-cmd --reload"
+  
+   - name: add globus-service permanently
+     command: "firewall-cmd --permanent --add-service globus-service --zone={{ firewall_zone }}"
+  
+   - name: reload firewall
+     command: "firewall-cmd --reload"
+   when: zone_result.failed == false
 
  - name: template globus-connect-server.conf
    template: src=roles/globus-server/files/globus-connect-server.conf dest=/etc/globus-connect-server.conf
