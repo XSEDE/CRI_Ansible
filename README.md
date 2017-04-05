@@ -5,11 +5,21 @@ of XSEDE-related software easier. Most of these will be tested on
 CentOS 6 and 7, depending on demand / contributions, we may support
 other operating systems as well.
 
+## Install Ansible
+The included install_ansible.sh script will install ansible in a
+virtualenv in your $HOME, under ansible_env/ansible_source.
+
+To use, run
+`./install_ansible.sh`
+`source $HOME/ansible_env/ansible/bin/activate`
+`source $HOME/ansible_env/ansible_source/hacing/env-setup`
+
 ## Ansible role for installing Globus Connect Server
 
 This role automates the installation of Globus Connect Server (GCS). 
-Currently, this works for CentOS 7; updating 
-this for additional distros is a nice TODO. 
+Currently, this works for CentOS and Ubuntu, though the Ubuntu
+version may not be quite up-to-date as of 
+April 4, 2017.
 
 files/globus\_service.xml defines the necessary port ranges for 
 GCS data transfer using firewalld; rich rules for Globus Online 
@@ -27,6 +37,10 @@ The file "globus.yml" is an example playbook using this role; the
 variables set by vars\_prompt may either be set by hand, or copied into
 the top-level playbook calling this role.
 
-The task does not use the firewalld module, since it both requires
-the Python 2 bindings, and that the service exist in /etc/services, 
-which globus does not.
+The role checks (on CentOS) for whether firewalld is installed or not,
+and applies sane firewall rules, and adds Globus as a service.
+
+CAVEATS:
+The default setup will install a private-only endpoint!
+The resulting endpoint name may not be as defined in the
+globus-connect-server.conf - I am not yet sure why.
