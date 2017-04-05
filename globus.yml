@@ -4,7 +4,7 @@
    gather_facts: yes
 
    roles:
-     - globus-server
+     - {role: globus-server, become: yes}
 
    vars_prompt:
     - name: globus_username
